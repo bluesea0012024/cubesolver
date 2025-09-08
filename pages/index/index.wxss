@@ -72,36 +72,30 @@
 
 .share-btn text {
   font-size: 26rpx;
-  font-weight: bold;
+  /* font-weight: bold; */ /* 移除加粗 */
   color: #357BD8;
 }
 
-/* 魔方3D展示区域 */
+/* 魔方3D展示区域 - 重构样式以确保居中 */
 .cube-display-container {
+  flex: 1; /* 占据剩余的垂直空间，将颜色选择器推到底部 */
+  min-height: 600rpx; /* 设置最小高度以防止容器坍塌 */
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20rpx 10rpx;
-  margin-bottom: 20rpx;
 }
 
-.cube-display {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10rpx;
-  margin-bottom: 20rpx;
-  min-height: 700rpx;
-}
-
+/* 魔方组件的直接父容器 */
 .cube-display {
   width: 600rpx;
   height: 600rpx;
-  margin: 0 auto;
   position: relative;
-  background: transparent;
-  overflow: hidden; /* 防止旋转时内容溢出 */
+  
+  /* 使用Flexbox将内部的魔方组件（400rpx）居中 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .cube-canvas {
@@ -180,7 +174,7 @@
 }
 
 .color-label {
-  font-size: 22rpx;
+  font-size: 44rpx; /* 字体放大一倍 */
   color: #333;
 }
 

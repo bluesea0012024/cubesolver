@@ -31,7 +31,8 @@ Component({
     // 3D旋转角度
     rotateX: -15,
     rotateY: 25,
-    perspective: 1000,
+    // 只保留旋转变换，perspective已移至WXSS
+    transform: 'rotateX(-15deg) rotateY(25deg)',
     
     // 触摸控制
     isDragging: false,
@@ -62,6 +63,15 @@ Component({
     
     // 高级渲染器
     advancedRenderer: null
+  },
+
+  observers: {
+    'rotateX, rotateY': function(rotateX, rotateY) {
+      this.setData({
+        // 只更新旋转变换
+        transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
+      });
+    }
   },
 
   lifetimes: {
