@@ -1,0 +1,147 @@
+<!--solver.wxml-->
+<view class="container">
+  <!-- 顶部广告位 -->
+  <view class="ad-banner">
+    <!-- 广告位预留 -->
+    <text class="ad-placeholder">广告位</text>
+  </view>
+
+  <!-- 魔方3D模型展示 -->
+  <view class="cube-display">
+    <canvas 
+      canvas-id="solverCanvas" 
+      class="solver-canvas"
+      bindtouchstart="onTouchStart"
+      bindtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd"
+    ></canvas>
+    
+    <!-- 加载动画 -->
+    <view class="solving-loading" wx:if="{{isSolving}}">
+      <view class="loading-spinner"></view>
+      <text>正在计算求解步骤...</text>
+    </view>
+  </view>
+
+  <!-- 步骤信息显示 -->
+  <view class="step-info card">
+    <view class="step-progress">
+      <text class="progress-text">步骤：{{currentStep}}/{{totalSteps}}</text>
+      <view class="progress-bar">
+        <view 
+          class="progress-fill" 
+          style="width: {{progressPercent}}%"
+        ></view>
+      </view>
+    </view>
+    
+    <view class="step-formula" wx:if="{{currentFormula}}">
+      <text class="formula-label">当前步骤：</text>
+      <text class="formula-text">{{currentFormula}}</text>
+    </view>
+    
+    <view class="step-description" wx:if="{{stepDescription}}">
+      <text class="description-text">{{stepDescription}}</text>
+    </view>
+  </view>
+
+  <!-- 控制按钮区域 -->
+  <view class="controls card">
+    <!-- 播放速度控制 -->
+    <view class="speed-control">
+      <text class="speed-label">播放速度：</text>
+      <slider 
+        class="speed-slider"
+        min="1" 
+        max="3" 
+        step="1" 
+        value="{{playSpeed}}"
+        bindchange="onSpeedChange"
+        activeColor="#1976D2"
+        backgroundColor="#e0e0e0"
+      />
+      <text class="speed-value">{{speedText}}</text>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button 
+        class="control-btn btn-secondary" 
+        bindtap="goBack"
+      >
+        返回
+      </button>
+      
+      <button 
+        class="control-btn btn-secondary {{currentStep <= 0 ? 'btn-disabled' : ''}}" 
+        bindtap="previousStep"
+        disabled="{{currentStep <= 0}}"
+      >
+        &lt;&lt;
+      </button>
+      
+      <button 
+        class="control-btn btn-primary" 
+        bindtap="toggleAutoPlay"
+      >
+        {{isAutoPlaying ? '暂停' : '自动'}}
+      </button>
+      
+      <button 
+        class="control-btn btn-secondary {{currentStep >= totalSteps ? 'btn-disabled' : ''}}" 
+        bindtap="nextStep"
+        disabled="{{currentStep >= totalSteps}}"
+      >
+        &gt;&gt;
+      </button>
+      
+      <button 
+        class="control-btn btn-success" 
+        bindtap="shareSolution"
+      >
+        分享
+      </button>
+    </view>
+  </view>
+
+  <!-- 解法步骤列表 -->
+  <view class="solution-steps card" wx:if="{{solutionSteps.length > 0}}">
+    <view class="steps-title">完整解法步骤</view>
+    <scroll-view class="steps-list" scroll-y="{{true}}" style="height: 300rpx;">
+      <view 
+        class="step-item {{index === currentStep - 1 ? 'active' : ''}}"
+        wx:for="{{solutionSteps}}" 
+        wx:key="index"
+        data-step="{{index + 1}}"
+        bindtap="jumpToStep"
+      >
+        <view class="step-number">{{index + 1}}</view>
+        <view class="step-move">{{item.move}}</view>
+        <view class="step-desc">{{item.description}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 完成提示 -->
+  <view class="completion-card card" wx:if="{{isCompleted}}">
+    <view class="completion-icon">🎉</view>
+    <view class="completion-title">恭喜！魔方还原完成</view>
+    <view class="completion-stats">
+      <text>总步数：{{totalSteps}} 步</text>
+      <text>用时：{{solveTime}}</text>
+    </view>
+    <button class="btn btn-primary" bindtap="startNew">开始新的还原</button>
+  </view>
+</view>
+
+<!-- 分享对话框 -->
+<view class="modal-overlay" wx:if="{{showShareModal}}" bindtap="hideShareModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-title">分享解法</view>
+    <view class="share-options">
+      <button class="btn btn-primary" bindtap="shareToFriend">分享给朋友</button>
+      <button class="btn btn-secondary mt-10" bindtap="saveImage">保存图片</button>
+    </view>
+    <button class="btn btn-secondary mt-20" bindtap="hideShareModal">取消</button>
+  </view>
+</view>

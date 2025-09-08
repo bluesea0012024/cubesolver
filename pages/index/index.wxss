@@ -1,0 +1,374 @@
+/* index.wxss - 根据UI设计重新布局 */
+
+/* 页面容器 */
+.page-container {
+  min-height: 100vh;
+  background-color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部广告横幅 */
+.ad-banner {
+  background: linear-gradient(135deg, #4A90E2, #357BD8);
+  color: white;
+  padding: 35rpx 30rpx; /* 增加垂直内边距 */
+  display: flex;
+  justify-content: flex-start; /* 更新对齐方式 */
+  align-items: center;
+  border-radius: 0 0 20rpx 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.ad-content {
+  flex: 1;
+}
+
+.ad-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.ad-subtitle {
+  font-size: 24rpx;
+  opacity: 0.9;
+  display: block;
+  margin-bottom: 15rpx;
+}
+
+.ad-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-size: 28rpx;
+  font-weight: bold;
+  background: linear-gradient(45deg, #00D4AA, #00B894);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 移除旧的分享按钮样式 */
+
+/* 新增分享按钮容器样式 */
+.share-container {
+  display: flex;
+  justify-content: center;
+  padding: 0 30rpx 30rpx;
+}
+
+.share-btn {
+  background-color: #fff;
+  color: #357BD8;
+  padding: 15rpx 40rpx;
+  border-radius: 30rpx;
+  border: 1rpx solid #e0e0e0;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.08);
+}
+
+.share-btn text {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #357BD8;
+}
+
+/* 魔方3D展示区域 */
+.cube-display-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20rpx 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.cube-display {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10rpx;
+  margin-bottom: 20rpx;
+  min-height: 700rpx;
+}
+
+.cube-display {
+  width: 600rpx;
+  height: 600rpx;
+  margin: 0 auto;
+  position: relative;
+  background: transparent;
+  overflow: hidden; /* 防止旋转时内容溢出 */
+}
+
+.cube-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background-color: #fafafa;
+}
+
+.cube-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  font-size: 28rpx;
+  color: #666;
+}
+
+.cube-loading text {
+  margin-top: 20rpx;
+}
+
+/* 调试信息 */
+.debug-info {
+  position: absolute;
+  bottom: 20rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10rpx 20rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  text-align: center;
+  max-width: 80%;
+}
+
+/* 颜色选择器 */
+.color-selector {
+  display: flex;
+  justify-content: center; /* 居中对齐 */
+  gap: 25rpx; /* 调整颜色间距 */
+  align-items: center;
+  width: 100%;
+  padding: 20rpx;
+  background-color: #ffffff;
+}
+
+.color-circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* 移除 transform 属性 */
+}
+
+.color-dot {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  border: 3rpx solid transparent;
+  margin-bottom: 8rpx;
+  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.1);
+  transition: transform 0.2s ease-in-out;
+  transform: scale(0.9); /* 未选中时缩小 */
+}
+
+.color-circle.selected .color-dot {
+  border-color: #007aff; /* A highlight color for selection */
+  transform: scale(1.15); /* 选中时放大 */
+}
+
+.color-label {
+  font-size: 22rpx;
+  color: #333;
+}
+
+/* Sticker and Color Selector Colors */
+.cube-color-U { background-color: #ffffff; border: 1rpx solid #ccc; } /* White */
+.cube-color-D { background-color: #ffeb3b; } /* Yellow */
+.cube-color-F { background-color: #4caf50; } /* Green */
+.cube-color-B { background-color: #2196f3; } /* Blue */
+.cube-color-L { background-color: #ff9800; } /* Orange */
+.cube-color-R { background-color: #f44336; } /* Red */
+.cube-color-empty { background-color: #f5f5f5; border: 1rpx solid #ddd;}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30rpx 40rpx;
+  gap: 20rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 15rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  border: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #4CAF50, #45A049);
+  color: white;
+  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.3);
+}
+
+.primary-btn:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(76, 175, 80, 0.3);
+}
+
+.primary-btn.disabled {
+  background: #cccccc;
+  color: #666666;
+  box-shadow: none;
+}
+
+.secondary-btn {
+  background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+  color: #333;
+  border: 1rpx solid #ddd;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.secondary-btn:active {
+  transform: translateY(2rpx);
+  background: #e0e0e0;
+}
+
+.secondary-btn:disabled {
+  opacity: 0.5;
+}
+
+/* 进度提示 */
+.progress-toast {
+  position: fixed;
+  bottom: 140rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20rpx 40rpx;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  z-index: 999;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(20rpx); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-20rpx); }
+}
+
+/* 模态框 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 20rpx;
+  padding: 50rpx 40rpx 40rpx;
+  margin: 0 40rpx;
+  max-width: 500rpx;
+  width: 100%;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #333;
+}
+
+.modal-text {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 40rpx;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.modal-actions .btn {
+  flex: 1;
+  height: 70rpx;
+  line-height: 70rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+}
+
+/* 魔方颜色样式 */
+.cube-color-red {
+  background-color: #f44336;
+}
+
+.cube-color-orange {
+  background-color: #ff9800;
+}
+
+.cube-color-yellow {
+  background-color: #ffeb3b;
+}
+
+.cube-color-white {
+  background-color: #ffffff;
+}
+
+.cube-color-green {
+  background-color: #4caf50;
+}
+
+.cube-color-blue {
+  background-color: #2196f3;
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 375px) {
+  .cube-display-container {
+    min-height: 650rpx;
+    padding: 5rpx;
+  }
+  
+  .color-dot {
+    width: 50rpx;
+    height: 50rpx;
+  }
+  
+  .action-btn {
+    height: 70rpx;
+    font-size: 28rpx;
+  }
+}
+
+@media screen and (min-width: 414px) {
+  .cube-display-container {
+    min-height: 750rpx;
+  }
+  
+  .color-dot {
+    width: 65rpx;
+    height: 65rpx;
+  }
+}

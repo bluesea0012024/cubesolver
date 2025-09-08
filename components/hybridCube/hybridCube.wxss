@@ -1,0 +1,149 @@
+/* hybridCube.wxss - 混合渲染魔方样式 */
+
+.hybrid-cube-container {
+  width: 100%;
+  height: 600rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: #f0f0f0;
+  /* 3D透视设置 - 关键！ */
+  perspective: 1000px;
+  perspective-origin: center center;
+}
+
+.cube-3d {
+  position: relative;
+  width: 400rpx;
+  height: 400rpx;
+  /* 3D变换关键属性 */
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+  /* 确保在中心 */
+  transform-origin: center center center;
+}
+
+/* 魔方面的基础样式 */
+.cube-face {
+  position: absolute;
+  width: 400rpx;
+  height: 400rpx;
+  border: 2rpx solid #333;
+  border-radius: 8rpx;
+  /* 3D背面隐藏 */
+  backface-visibility: hidden;
+  /* 确保面是3D的 */
+  transform-style: preserve-3d;
+  background: #000; /* Use black background for gaps */
+  padding: 12rpx; /* Gaps between stickers and edge */
+  box-sizing: border-box;
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 12rpx; /* Gaps between stickers */
+  width: 100%;
+  height: 100%;
+}
+
+.sticker {
+  width: 100%;
+  height: 100%;
+  border-radius: 6rpx;
+  border: 1rpx solid #333;
+}
+
+/* Sticker Colors */
+.cube-color-U { background-color: #ffffff; } /* White */
+.cube-color-D { background-color: #ffeb3b; } /* Yellow */
+.cube-color-F { background-color: #4caf50; } /* Green */
+.cube-color-B { background-color: #2196f3; } /* Blue */
+.cube-color-L { background-color: #ff9800; } /* Orange */
+.cube-color-R { background-color: #f44336; } /* Red */
+.cube-color-empty { background-color: #f5f5f5; border: 1rpx solid #ddd;}
+
+
+/* 前面 - 默认位置 */
+.face-front {
+  transform: translateZ(200rpx);
+}
+
+/* 后面 - 旋转180度并向后移 */
+.face-back {
+  transform: rotateY(180deg) translateZ(200rpx);
+}
+
+/* 右面 - 向右旋转90度 */
+.face-right {
+  transform: rotateY(90deg) translateZ(200rpx);
+}
+
+/* 左面 - 向左旋转90度 */
+.face-left {
+  transform: rotateY(-90deg) translateZ(200rpx);
+}
+
+/* 上面 - 向上旋转90度 */
+.face-up {
+  transform: rotateX(90deg) translateZ(200rpx);
+}
+
+/* 下面 - 向下旋转90度 */
+.face-down {
+  transform: rotateX(-90deg) translateZ(200rpx);
+}
+
+/* 调试信息 */
+.debug-info {
+  position: absolute;
+  bottom: 20rpx;
+  left: 20rpx;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  z-index: 10;
+}
+
+.debug-info text {
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 375px) {
+  .cube-3d {
+    width: 350rpx;
+    height: 350rpx;
+  }
+  
+  .cube-face {
+    width: 350rpx;
+    height: 350rpx;
+  }
+  
+  .face-front, .face-back {
+    transform: translateZ(175rpx);
+  }
+  
+  .face-right {
+    transform: rotateY(90deg) translateZ(175rpx);
+  }
+  
+  .face-left {
+    transform: rotateY(-90deg) translateZ(175rpx);
+  }
+  
+  .face-up {
+    transform: rotateX(90deg) translateZ(175rpx);
+  }
+  
+  .face-down {
+    transform: rotateX(-90deg) translateZ(175rpx);
+  }
+}

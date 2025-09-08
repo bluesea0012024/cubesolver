@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "hybrid-cube": "/components/hybridCube/hybridCube"
+  }
+}

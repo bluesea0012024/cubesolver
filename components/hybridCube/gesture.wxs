@@ -1,0 +1,57 @@
+// gesture.wxs - WXS手势处理脚本，用于高性能触摸交互
+
+var gestureHandler = {
+  // 触摸开始
+  onTouchStart: function(event, ownerInstance) {
+    var state = event.instance.getState()
+    var touch = event.touches[0]
+    
+    state.isDragging = true
+    state.lastTouchX = touch.clientX
+    state.lastTouchY = touch.clientY
+    
+    console.log('WXS触摸开始:', touch.clientX, touch.clientY)
+  },
+  
+  // 触摸移动
+  onTouchMove: function(event, ownerInstance) {
+    var state = event.instance.getState()
+    if (!state.isDragging) return
+    
+    var touch = event.touches[0]
+    var deltaX = touch.clientX - state.lastTouchX
+    var deltaY = touch.clientY - state.lastTouchY
+    
+    // 调用页面方法更新旋转角度
+    ownerInstance.callMethod('updateRotation', {
+      deltaX: deltaX,
+      deltaY: deltaY
+    })
+    
+    state.lastTouchX = touch.clientX
+    state.lastTouchY = touch.clientY
+  },
+  
+  // 触摸结束
+  onTouchEnd: function(event, ownerInstance) {
+    var state = event.instance.getState()
+    state.isDragging = false
+    
+    console.log('WXS触摸结束')
+    
+    // 触发点击检测
+    var touch = event.changedTouches[0]
+    var deltaX = Math.abs(touch.clientX - state.lastTouchX)
+    var deltaY = Math.abs(touch.clientY - state.lastTouchY)
+    
+    // 如果移动距离很小，视为点击
+    if (deltaX < 10 && deltaY < 10) {
+      ownerInstance.callMethod('handleTap', {
+        x: touch.clientX,
+        y: touch.clientY
+      })
+    }
+  }
+}
+
+module.exports = gestureHandler

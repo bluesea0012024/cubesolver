@@ -1,0 +1,77 @@
+<!--hybridCube.wxml - 混合渲染魔方MVP-->
+<wxs module="gesture" src="./gesture.wxs"></wxs>
+
+<view class="hybrid-cube-container">
+  <view class="cube3d"
+      style="transform: {{transform}}"
+      bindtouchstart="{{gesture.start}}"
+      catchtouchmove="{{gesture.move}}"
+      bindtouchend="{{gesture.end}}"
+      data-cube-state="{{cubeState}}">
+    <!-- Front Face -->
+    <view class="cube-face front">
+      <view class="sticker-grid">
+        <block wx:for="{{cubeState.F}}" wx:for-item="color" wx:for-index="index" wx:key="index">
+          <view class="sticker cube-color-{{color}}" data-face="F" data-index="{{index}}" bindtap="onStickerClick"></view>
+        </block>
+      </view>
+    </view>
+    
+    <!-- 后面 -->
+    <view class="cube-face face-back">
+      <view class="sticker-grid">
+        <block wx:for="{{cubeState.B}}" wx:for-item="color" wx:for-index="index" wx:key="index">
+          <view class="sticker cube-color-{{color}}" data-face="B" data-index="{{index}}" bindtap="onStickerClick"></view>
+        </block>
+      </view>
+    </view>
+    
+    <!-- 右面 -->
+    <view class="cube-face face-right">
+      <view class="sticker-grid">
+        <block wx:for="{{cubeState.R}}" wx:for-item="color" wx:for-index="index" wx:key="index">
+          <view class="sticker cube-color-{{color}}" data-face="R" data-index="{{index}}" bindtap="onStickerClick"></view>
+        </block>
+      </view>
+    </view>
+    
+    <!-- 左面 -->
+    <view class="cube-face face-left">
+      <view class="sticker-grid">
+        <block wx:for="{{cubeState.L}}" wx:key="index">
+          <view class="sticker cube-color-{{item}}" data-face="L" data-index="{{index}}"></view>
+        </block>
+      </view>
+    </view>
+    
+    <!-- 上面 -->
+    <view class="cube-face face-up">
+      <view class="sticker-grid">
+        <block wx:for="{{cubeState.U}}" wx:key="index">
+          <view class="sticker cube-color-{{item}}" data-face="U" data-index="{{index}}"></view>
+        </block>
+      </view>
+    </view>
+    
+    <!-- 下面 -->
+    <view class="cube-face face-down">
+      <view class="sticker-grid">
+        <block wx:for="{{cubeState.D}}" wx:key="index">
+          <view class="sticker cube-color-{{item}}" data-face="D" data-index="{{index}}"></view>
+        </block>
+      </view>
+    </view>
+    
+    <!-- 立方体边框增强视觉效果 -->
+    <view class="cube-edge edge-x"></view>
+    <view class="cube-edge edge-y"></view>
+    <view class="cube-edge edge-z"></view>
+  </view>
+  
+  <!-- 调试信息 -->
+  <view class="debug-info" wx:if="{{showDebug}}">
+    <text>rotateX: {{rotateX}}°</text>
+    <text>rotateY: {{rotateY}}°</text>
+    <text>Canvas Ready: {{readyCanvasCount}}/6</text>
+  </view>
+</view>

@@ -1,0 +1,50 @@
+<!--index.wxml-->
+<view class="page-container">
+  <!-- 顶部广告横幅 -->
+  <view class="ad-banner">
+    <view class="ad-content">
+      <text class="ad-title">魔方还原助手</text>
+      <text class="ad-subtitle">轻松几步，还原魔方</text>
+    </view>
+    <!-- 分享按钮已移出 -->
+  </view>
+
+  <!-- 分享按钮容器 -->
+  <view class="share-container">
+    <button class="share-btn" open-type="share">
+      <text>分享给朋友</text>
+    </button>
+  </view>
+
+  <!-- 魔方展示 -->
+  <view class="cube-display-container">
+    <view class="cube-display">
+      <hybrid-cube id="hybrid-cube" cubeState="{{cubeState}}" bind:cubeClick="onCubeClick" />
+    </view>
+  </view>
+
+  <!-- 颜色选择器 -->
+  <view class="color-selector">
+    <view wx:for="{{colors}}" wx:key="key" class="color-circle {{selectedColor === item.key ? 'selected' : ''}}" data-color="{{item.key}}" bindtap="onColorSelect">
+      <view class="color-dot cube-color-{{item.key}}"></view>
+      <text class="color-label">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 进度提示 -->
+  <view class="progress-toast" wx:if="{{showProgressHint}}">
+    <text>已录入: {{completedFaces}}/6 个面</text>
+  </view>
+</view>
+
+<!-- 确认重置对话框 -->
+<view class="modal-overlay" wx:if="{{showConfirmModal}}" bindtap="hideConfirmModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-title">确认重置</view>
+    <view class="modal-text">确定要清空所有已录入的颜色吗？</view>
+    <view class="modal-actions">
+      <button class="btn btn-secondary" bindtap="hideConfirmModal">取消</button>
+      <button class="btn btn-primary" bindtap="confirmReset">确定</button>
+    </view>
+  </view>
+</view>
