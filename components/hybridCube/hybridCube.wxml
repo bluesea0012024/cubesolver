@@ -5,30 +5,12 @@
   <view class="scene-3d">
     <view class="cube-3d"
         style="transform: {{transform}}"
-        bindtouchstart="{{gesture.start}}"
-        catchtouchmove="{{gesture.move}}"
-        bindtouchend="{{gesture.end}}"
+        bindtouchstart="{{gesture.gestureHandler.onTouchStart}}"
+        catchtouchmove="{{gesture.gestureHandler.onTouchMove}}"
+        bindtouchend="{{gesture.gestureHandler.onTouchEnd}}"
         data-cube-state="{{cubeState}}">
-      <!-- Front Face -->
+      <!-- Front Face (红色面) -->
       <view class="cube-face face-front">
-        <view class="sticker-grid">
-          <block wx:for="{{cubeState.F}}" wx:for-item="color" wx:for-index="index" wx:key="index">
-            <view class="sticker cube-color-{{color}}" data-face="F" data-index="{{index}}" bindtap="onStickerClick"></view>
-          </block>
-        </view>
-      </view>
-      
-      <!-- 后面 -->
-      <view class="cube-face face-back">
-        <view class="sticker-grid">
-          <block wx:for="{{cubeState.B}}" wx:for-item="color" wx:for-index="index" wx:key="index">
-            <view class="sticker cube-color-{{color}}" data-face="B" data-index="{{index}}" bindtap="onStickerClick"></view>
-          </block>
-        </view>
-      </view>
-      
-      <!-- 右面 -->
-      <view class="cube-face face-right">
         <view class="sticker-grid">
           <block wx:for="{{cubeState.R}}" wx:for-item="color" wx:for-index="index" wx:key="index">
             <view class="sticker cube-color-{{color}}" data-face="R" data-index="{{index}}" bindtap="onStickerClick"></view>
@@ -36,11 +18,29 @@
         </view>
       </view>
       
-      <!-- 左面 -->
-      <view class="cube-face face-left">
+      <!-- 后面 (橙色面) -->
+      <view class="cube-face face-back">
         <view class="sticker-grid">
           <block wx:for="{{cubeState.L}}" wx:for-item="color" wx:for-index="index" wx:key="index">
             <view class="sticker cube-color-{{color}}" data-face="L" data-index="{{index}}" bindtap="onStickerClick"></view>
+          </block>
+        </view>
+      </view>
+      
+      <!-- 右面 (绿色面) -->
+      <view class="cube-face face-right">
+        <view class="sticker-grid">
+          <block wx:for="{{cubeState.F}}" wx:for-item="color" wx:for-index="index" wx:key="index">
+            <view class="sticker cube-color-{{color}}" data-face="F" data-index="{{index}}" bindtap="onStickerClick"></view>
+          </block>
+        </view>
+      </view>
+      
+      <!-- 左面 (蓝色面) -->
+      <view class="cube-face face-left">
+        <view class="sticker-grid">
+          <block wx:for="{{cubeState.B}}" wx:for-item="color" wx:for-index="index" wx:key="index">
+            <view class="sticker cube-color-{{color}}" data-face="B" data-index="{{index}}" bindtap="onStickerClick"></view>
           </block>
         </view>
       </view>
@@ -63,10 +63,13 @@
         </view>
       </view>
       
-      <!-- 立方体边框增强视觉效果 -->
-      <view class="cube-edge edge-x"></view>
-      <view class="cube-edge edge-y"></view>
-      <view class="cube-edge edge-z"></view>
+      <!-- 8个顶点圆片 - 抗锯齿效果 -->
+      <view wx:for="{{vertexPositions}}" wx:for-item="vertex" wx:for-index="idx" wx:key="idx"
+            class="cube-vertex"
+            style="{{vertex.style}}"
+            wx:if="{{vertex.visible}}">
+        <view class="vertex-dot" style="background-color: {{vertex.color}};"></view>
+      </view>
     </view>
   </view>
 </view>

@@ -496,24 +496,39 @@ Page({
 
   checkCompletion() {
     let completed = 0;
+    let totalEmpty = 0;
+    
     for (const face in this.data.cubeState) {
-      if (this.data.cubeState[face].every(c => c !== 'empty')) {
+      let faceComplete = true;
+      for (let i = 0; i < 9; i++) {
+        if (this.data.cubeState[face][i] === 'empty') {
+          faceComplete = false;
+          totalEmpty++;
+        }
+      }
+      if (faceComplete) {
         completed++;
       }
     }
 
-    const canSolve = completed === 6;
+    const canSolve = completed === 6 && totalEmpty === 0;
+    
     if (canSolve !== this.data.canSolve) {
       this.setData({ canSolve: canSolve });
     }
     
+    // 显示进度提示
     if (completed > this.data.completedFaces && completed < 6) {
       this.setData({ showProgressHint: true });
       setTimeout(() => {
         this.setData({ showProgressHint: false });
       }, 2000);
     }
-    this.setData({ completedFaces: completed });
+    
+    this.setData({ 
+      completedFaces: completed,
+      totalEmpty: totalEmpty
+    });
   },
 
   onReset() {
@@ -530,10 +545,82 @@ Page({
   },
 
   onSolve() {
-    if (!this.data.canSolve) return;
+    if (!this.data.canSolve) {
+      wx.showToast({
+        title: '请完成魔方录入',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+
+    // 验证魔方状态是否有效
+    if (!this.validateCubeState()) {
+      wx.showModal({
+        title: '魔方状态错误',
+        content: '当前魔方状态无法求解，请检查颜色录入是否正确',
+        showCancel: false
+      });
+      return;
+    }
+
+    // 保存魔方状态到全局数据
+    const app = getApp();
+    app.globalData = app.globalData || {};
+    app.globalData.currentCubeState = {
+      getState: () => this.data.cubeState,
+      getStateString: () => this.convertToStateString(this.data.cubeState),
+      copy: () => ({
+        getState: () => ({ ...this.data.cubeState }),
+        getStateString: () => this.convertToStateString(this.data.cubeState)
+      })
+    };
+
+    // 跳转到求解页面
     wx.navigateTo({
-      url: '/pages/solver/solver?cubeState=' + JSON.stringify(this.data.cubeState),
-    })
+      url: '/pages/solver/solver'
+    });
+  },
+
+  // 验证魔方状态
+  validateCubeState() {
+    const state = this.data.cubeState;
+    
+    // 检查每种颜色是否都有9个
+    const colorCounts = {};
+    Object.values(state).forEach(face => {
+      face.forEach(color => {
+        if (color !== 'empty') {
+          colorCounts[color] = (colorCounts[color] || 0) + 1;
+        }
+      });
+    });
+
+    // 每种颜色应该有9个
+    const expectedColors = ['U', 'D', 'F', 'B', 'L', 'R'];
+    for (const color of expectedColors) {
+      if (colorCounts[color] !== 9) {
+        return false;
+      }
+    }
+
+    return true;
+  },
+
+  // 转换为状态字符串（供Kociemba算法使用）
+  convertToStateString(cubeState) {
+    // 将魔方状态转换为Kociemba算法需要的字符串格式
+    let stateString = '';
+    
+    // 按照Kociemba的顺序：U R F D L B
+    const faces = ['U', 'R', 'F', 'D', 'L', 'B'];
+    faces.forEach(face => {
+      cubeState[face].forEach(color => {
+        stateString += color;
+      });
+    });
+    
+    return stateString;
   },
 
   onShareAppMessage() {

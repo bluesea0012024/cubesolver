@@ -1,5 +1,6 @@
 // hybridCube.js - 混合渲染魔方组件
 const AdvancedCubeRenderer = require('../../utils/advancedCubeRenderer.js')
+const VertexColorMixer = require('../../utils/vertexColorMixer.js')
 
 Component({
   properties: {
@@ -62,7 +63,17 @@ Component({
     renderPending: false,
     
     // 高级渲染器
-    advancedRenderer: null
+    advancedRenderer: null,
+    
+    // 顶点颜色混合器
+    vertexColorMixer: null,
+    
+    // 顶点位置数据
+    vertexPositions: [],
+    
+    
+    // 立方体尺寸
+    cubeSize: 480
   },
 
   observers: {
@@ -71,6 +82,16 @@ Component({
         // 只更新旋转变换
         transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
       });
+      
+      // 更新顶点位置
+      this.updateVertexPositions(rotateX, rotateY);
+    },
+    
+    'cubeState': function(newCubeState) {
+      if (newCubeState) {
+        // 更新顶点颜色
+        this.updateVertexColors();
+      }
     }
   },
 
@@ -85,16 +106,21 @@ Component({
 
     ready() {
       console.log('HybridCube组件准备完毕')
-      // 初始化高级渲染器
+      // 初始化高级渲染器和顶点颜色混合器
       this.setData({
-        advancedRenderer: new AdvancedCubeRenderer()
+        advancedRenderer: new AdvancedCubeRenderer(),
+        vertexColorMixer: new VertexColorMixer()
       })
       this.initCanvases()
+      
+      // 初始化顶点位置
+      this.updateVertexPositions(this.data.rotateX, this.data.rotateY)
       
       // 如果已经有cubeState数据，立即渲染
       if (this.data.cubeState) {
         setTimeout(() => {
           this.renderAllFaces()
+          this.updateVertexColors()
         }, 100)
       }
     },
@@ -299,5 +325,89 @@ Component({
       // A proper implementation would store onTouchStart positions and compare here.
       // For now, WXS handles taps.
     },
+
+    // 更新顶点位置（高性能版本）
+    updateVertexPositions(rotateX, rotateY) {
+      const vertexNames = [
+        'front-top-left', 'front-top-right', 'front-bottom-left', 'front-bottom-right',
+        'back-top-left', 'back-top-right', 'back-bottom-left', 'back-bottom-right'
+      ]
+      
+      const halfSize = this.data.cubeSize / 2
+      const radX = rotateX * Math.PI / 180
+      const radY = rotateY * Math.PI / 180
+      
+      const vertices = [
+        [-halfSize, -halfSize, halfSize],   // 前上左
+        [halfSize, -halfSize, halfSize],    // 前上右
+        [-halfSize, halfSize, halfSize],    // 前下左
+        [halfSize, halfSize, halfSize],     // 前下右
+        [-halfSize, -halfSize, -halfSize],  // 后上左
+        [halfSize, -halfSize, -halfSize],   // 后上右
+        [-halfSize, halfSize, -halfSize],   // 后下左
+        [halfSize, halfSize, -halfSize]     // 后下右
+      ]
+      
+      const positions = vertices.map((vertex, index) => {
+        const [x, y, z] = vertex
+        
+        // 绕Y轴旋转
+        const x1 = x * Math.cos(radY) + z * Math.sin(radY)
+        const z1 = -x * Math.sin(radY) + z * Math.cos(radY)
+        
+        // 绕X轴旋转
+        const y2 = y * Math.cos(radX) - z1 * Math.sin(radX)
+        const z2 = y * Math.sin(radX) + z1 * Math.cos(radX)
+        
+        // 透视投影
+        const perspective = 1200
+        const scale = perspective / (perspective + z2)
+        
+        const projectedX = x1 * scale
+        const projectedY = y2 * scale
+        
+        // 获取当前顶点颜色
+        const vertexName = vertexNames[index]
+        const vertexColor = this.getVertexColor(vertexName)
+        
+        // 超精确的顶点可见性：基于3个坐标轴的绝对位置判断
+        const isAtXEdge = Math.abs(Math.abs(x1) - halfSize) < 50  // X轴边缘
+        const isAtYEdge = Math.abs(Math.abs(y2) - halfSize) < 50  // Y轴边缘  
+        const isAtZEdge = Math.abs(Math.abs(z2) - halfSize) < 50  // Z轴边缘
+        
+        // 只有在3个轴都接近边缘时才显示（真正的立方体顶点）
+        const isRealVertex = isAtXEdge && isAtYEdge && isAtZEdge
+        const isInFrontEnough = z2 > -halfSize * 0.7
+        const isVisible = isRealVertex && isInFrontEnough
+        
+        return {
+          visible: isVisible,
+          color: vertexColor,
+          style: `
+            transform: translate(${projectedX}rpx, ${projectedY}rpx) translate(-50%, -50%);
+            z-index: ${Math.max(1, Math.round((z2 + halfSize) / 10))};
+          `
+        }
+      })
+      
+      this.setData({
+        vertexPositions: positions
+      })
+    },
+
+    // 获取顶点颜色
+    getVertexColor(vertexName) {
+      if (!this.data.vertexColorMixer || !this.data.cubeState) {
+        return '#f5f5f5'
+      }
+      return this.data.vertexColorMixer.mixVertexColor(this.data.cubeState, vertexName)
+    },
+
+    // 更新所有顶点颜色
+    updateVertexColors() {
+      this.updateVertexPositions(this.data.rotateX, this.data.rotateY)
+    },
+
+
   }
 });

@@ -1,5 +1,56 @@
 // gesture.wxs - WXS手势处理脚本，用于高性能触摸交互
 
+// 立方体顶点3D坐标计算
+var vertexCalculator = {
+  // 计算8个顶点的2D投影位置
+  calculateVertexPositions: function(rotateX, rotateY, cubeSize) {
+    var halfSize = cubeSize / 2
+    var vertices = [
+      // 前面4个顶点
+      [-halfSize, -halfSize, halfSize],  // 前上左
+      [halfSize, -halfSize, halfSize],   // 前上右
+      [-halfSize, halfSize, halfSize],   // 前下左  
+      [halfSize, halfSize, halfSize],    // 前下右
+      // 后面4个顶点
+      [-halfSize, -halfSize, -halfSize], // 后上左
+      [halfSize, -halfSize, -halfSize],  // 后上右
+      [-halfSize, halfSize, -halfSize],  // 后下左
+      [halfSize, halfSize, -halfSize]    // 后下右
+    ]
+    
+    var positions = []
+    var radX = rotateX * Math.PI / 180
+    var radY = rotateY * Math.PI / 180
+    
+    for (var i = 0; i < vertices.length; i++) {
+      var x = vertices[i][0]
+      var y = vertices[i][1] 
+      var z = vertices[i][2]
+      
+      // 绕Y轴旋转
+      var x1 = x * Math.cos(radY) + z * Math.sin(radY)
+      var z1 = -x * Math.sin(radY) + z * Math.cos(radY)
+      
+      // 绕X轴旋转
+      var y2 = y * Math.cos(radX) - z1 * Math.sin(radX)
+      var z2 = y * Math.sin(radX) + z1 * Math.cos(radX)
+      
+      // 透视投影
+      var perspective = 1200
+      var scale = perspective / (perspective + z2)
+      
+      positions.push({
+        x: x1 * scale,
+        y: y2 * scale,
+        z: z2,
+        visible: z2 > -halfSize // 简单可见性判断
+      })
+    }
+    
+    return positions
+  }
+}
+
 var gestureHandler = {
   // 触摸开始
   onTouchStart: function(event, ownerInstance) {
@@ -54,4 +105,7 @@ var gestureHandler = {
   }
 }
 
-module.exports = gestureHandler
+module.exports = {
+  gestureHandler: gestureHandler,
+  vertexCalculator: vertexCalculator
+}

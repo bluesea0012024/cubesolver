@@ -11,8 +11,9 @@
 
   <!-- 分享按钮容器 -->
   <view class="share-container">
-    <button class="share-btn" open-type="share">
-      <text>分享给朋友</text>
+    <button class="share-btn" open-type="share" >
+      <image src="/ui/share-icon.svg" class="share-icon"></image>
+      <text class="share-text">分享给朋友</text>
     </button>
   </view>
 
@@ -31,6 +32,12 @@
     </view>
   </view>
 
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="btn btn-solve {{canSolve ? 'enabled' : 'disabled'}}" bindtap="onSolve" disabled="{{!canSolve}}">开始复原</button>
+    <button class="btn btn-reset" bindtap="onReset">重新开局</button>
+  </view>
+
   <!-- 进度提示 -->
   <view class="progress-toast" wx:if="{{showProgressHint}}">
     <text>已录入: {{completedFaces}}/6 个面</text>
@@ -41,7 +48,7 @@
 <view class="modal-overlay" wx:if="{{showConfirmModal}}" bindtap="hideConfirmModal">
   <view class="modal-content" catchtap="">
     <view class="modal-title">确认重置</view>
-    <view class="modal-text">确定要清空所有已录入的颜色吗？</view>
+    <view class="modal-text">将清空所有配色，确定继续？</view>
     <view class="modal-actions">
       <button class="btn btn-secondary" bindtap="hideConfirmModal">取消</button>
       <button class="btn btn-primary" bindtap="confirmReset">确定</button>

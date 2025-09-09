@@ -6,6 +6,14 @@
     <text class="ad-placeholder">广告位</text>
   </view>
 
+  <!-- 分享按钮 -->
+  <view class="share-wrapper">
+    <button class="share-btn" bindtap="shareSolution">
+      <image class="share-icon" src="/ui/share-icon.png" mode="aspectFit"></image>
+      <text>分享给朋友</text>
+    </button>
+  </view>
+
   <!-- 魔方3D模型展示 -->
   <view class="cube-display">
     <canvas 
@@ -23,33 +31,41 @@
     </view>
   </view>
 
-  <!-- 步骤信息显示 -->
-  <view class="step-info card">
-    <view class="step-progress">
-      <text class="progress-text">步骤：{{currentStep}}/{{totalSteps}}</text>
-      <view class="progress-bar">
-        <view 
-          class="progress-fill" 
-          style="width: {{progressPercent}}%"
-        ></view>
-      </view>
-    </view>
-    
-    <view class="step-formula" wx:if="{{currentFormula}}">
-      <text class="formula-label">当前步骤：</text>
-      <text class="formula-text">{{currentFormula}}</text>
-    </view>
-    
-    <view class="step-description" wx:if="{{stepDescription}}">
-      <text class="description-text">{{stepDescription}}</text>
-    </view>
+  <!-- 步数显示 -->
+  <view class="step-display">
+    <text class="step-text">步数：{{currentStep}}/{{totalSteps}}</text>
   </view>
 
-  <!-- 控制按钮区域 -->
-  <view class="controls card">
-    <!-- 播放速度控制 -->
+  <!-- 主要控制按钮 -->
+  <view class="main-controls">
+    <button 
+      class="control-btn back-btn" 
+      bindtap="goBack"
+    >
+      返回
+    </button>
+    
+    <button 
+      class="control-btn nav-btn {{currentStep <= 0 ? 'btn-disabled' : ''}}" 
+      bindtap="previousStep"
+      disabled="{{currentStep <= 0}}"
+    >
+      &lt;&lt;
+    </button>
+    
+    <button 
+      class="control-btn nav-btn {{currentStep >= totalSteps ? 'btn-disabled' : ''}}" 
+      bindtap="nextStep"
+      disabled="{{currentStep >= totalSteps}}"
+    >
+      &gt;&gt;
+    </button>
+  </view>
+
+  <!-- 速度控制和自动播放 -->
+  <view class="speed-auto-controls">
     <view class="speed-control">
-      <text class="speed-label">播放速度：</text>
+      <text class="speed-label">{{speedText}}</text>
       <slider 
         class="speed-slider"
         min="1" 
@@ -57,69 +73,17 @@
         step="1" 
         value="{{playSpeed}}"
         bindchange="onSpeedChange"
-        activeColor="#1976D2"
+        activeColor="#4CAF50"
         backgroundColor="#e0e0e0"
       />
-      <text class="speed-value">{{speedText}}</text>
     </view>
-
-    <!-- 操作按钮 -->
-    <view class="action-buttons">
-      <button 
-        class="control-btn btn-secondary" 
-        bindtap="goBack"
-      >
-        返回
-      </button>
-      
-      <button 
-        class="control-btn btn-secondary {{currentStep <= 0 ? 'btn-disabled' : ''}}" 
-        bindtap="previousStep"
-        disabled="{{currentStep <= 0}}"
-      >
-        &lt;&lt;
-      </button>
-      
-      <button 
-        class="control-btn btn-primary" 
-        bindtap="toggleAutoPlay"
-      >
-        {{isAutoPlaying ? '暂停' : '自动'}}
-      </button>
-      
-      <button 
-        class="control-btn btn-secondary {{currentStep >= totalSteps ? 'btn-disabled' : ''}}" 
-        bindtap="nextStep"
-        disabled="{{currentStep >= totalSteps}}"
-      >
-        &gt;&gt;
-      </button>
-      
-      <button 
-        class="control-btn btn-success" 
-        bindtap="shareSolution"
-      >
-        分享
-      </button>
-    </view>
-  </view>
-
-  <!-- 解法步骤列表 -->
-  <view class="solution-steps card" wx:if="{{solutionSteps.length > 0}}">
-    <view class="steps-title">完整解法步骤</view>
-    <scroll-view class="steps-list" scroll-y="{{true}}" style="height: 300rpx;">
-      <view 
-        class="step-item {{index === currentStep - 1 ? 'active' : ''}}"
-        wx:for="{{solutionSteps}}" 
-        wx:key="index"
-        data-step="{{index + 1}}"
-        bindtap="jumpToStep"
-      >
-        <view class="step-number">{{index + 1}}</view>
-        <view class="step-move">{{item.move}}</view>
-        <view class="step-desc">{{item.description}}</view>
-      </view>
-    </scroll-view>
+    
+    <button 
+      class="auto-btn {{isAutoPlaying ? 'auto-playing' : ''}}" 
+      bindtap="toggleAutoPlay"
+    >
+      自动
+    </button>
   </view>
 
   <!-- 完成提示 -->
