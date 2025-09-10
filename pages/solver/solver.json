@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "魔方求解",
+  "navigationBarBackgroundColor": "#4CAF50",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f0f0f0",
+  "usingComponents": {
+    "hybrid-cube": "../../components/hybridCube/hybridCube"
+  }
+}

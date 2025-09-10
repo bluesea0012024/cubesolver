@@ -417,14 +417,14 @@ const app = getApp()
 Page({
   data: {
     cubeState: null,
-    selectedColor: 'D', // 默认选择黄色
+    selectedColor: 'R', // 默认选择红色
     colors: [
       { key: 'R', name: '红' },
+      { key: 'F', name: '绿' },
       { key: 'L', name: '橙' },
+      { key: 'B', name: '蓝' },
       { key: 'D', name: '黄' },
       { key: 'U', name: '白' },
-      { key: 'B', name: '蓝' },
-      { key: 'F', name: '绿' },
     ],
     canSolve: false,
     completedFaces: 0,
@@ -439,7 +439,7 @@ Page({
   initCubeState() {
     // U-上(白), D-下(黄), F-前(绿), B-后(蓝), L-左(橙), R-右(红)
     const initialCubeState = {
-      U: Array(9).fill('empty'),
+      U: Array(9).fill('U'), // 白色面预设为全白色
       D: Array(9).fill('empty'),
       F: Array(9).fill('empty'),
       B: Array(9).fill('empty'),
@@ -447,8 +447,7 @@ Page({
       R: Array(9).fill('empty'),
     };
 
-    // 设置每个面的中心块颜色
-    initialCubeState.U[4] = 'U'; // White
+    // 设置其他面的中心块颜色
     initialCubeState.D[4] = 'D'; // Yellow
     initialCubeState.F[4] = 'F'; // Green
     initialCubeState.B[4] = 'B'; // Blue
@@ -458,7 +457,7 @@ Page({
     this.setData({
       cubeState: initialCubeState,
       canSolve: false,
-      completedFaces: 0,
+      completedFaces: 1, // 白色面已完成
     });
   },
 
@@ -475,6 +474,16 @@ Page({
 
     // 中心块不能被修改
     if (index === 4) {
+      return;
+    }
+
+    // 白色面(U面)不允许修改
+    if (face === 'U') {
+      wx.showToast({
+        title: '白色面已预设，无需修改',
+        icon: 'none',
+        duration: 1500
+      });
       return;
     }
 
@@ -555,12 +564,9 @@ Page({
     }
 
     // 验证魔方状态是否有效
-    if (!this.validateCubeState()) {
-      wx.showModal({
-        title: '魔方状态错误',
-        content: '当前魔方状态无法求解，请检查颜色录入是否正确',
-        showCancel: false
-      });
+    const validationResult = this.validateCubeState();
+    if (!validationResult.isValid) {
+      this.showColorValidationDialog(validationResult.colorCounts);
       return;
     }
 
@@ -587,24 +593,71 @@ Page({
     const state = this.data.cubeState;
     
     // 检查每种颜色是否都有9个
-    const colorCounts = {};
+    const colorCounts = {
+      'R': 0, // 红色
+      'L': 0, // 橙色 
+      'D': 0, // 黄色
+      'U': 0, // 白色
+      'B': 0, // 蓝色
+      'F': 0  // 绿色
+    };
+
     Object.values(state).forEach(face => {
       face.forEach(color => {
-        if (color !== 'empty') {
-          colorCounts[color] = (colorCounts[color] || 0) + 1;
+        if (color !== 'empty' && colorCounts.hasOwnProperty(color)) {
+          colorCounts[color]++;
         }
       });
     });
 
-    // 每种颜色应该有9个
-    const expectedColors = ['U', 'D', 'F', 'B', 'L', 'R'];
+    // 检查每种颜色是否都有9个
+    let isValid = true;
+    const expectedColors = ['R', 'L', 'D', 'U', 'B', 'F'];
     for (const color of expectedColors) {
       if (colorCounts[color] !== 9) {
-        return false;
+        isValid = false;
       }
     }
 
-    return true;
+    return {
+      isValid,
+      colorCounts
+    };
+  },
+
+  // 显示颜色验证对话框
+  showColorValidationDialog(colorCounts) {
+    const colorNames = {
+      'R': '红色',
+      'F': '绿色', 
+      'L': '橙色',
+      'B': '蓝色',
+      'D': '黄色',
+      'U': '白色'
+    };
+
+    // 按照指定顺序显示颜色计数：红、绿、橙、蓝、黄、白
+    const orderedColors = ['R', 'F', 'L', 'B', 'D', 'U'];
+    
+    let content = '每种颜色应为9个，请检查：\n\n';
+    
+    orderedColors.forEach((color, index) => {
+      const count = colorCounts[color] || 0;
+      content += `${colorNames[color]}：${count}个`;
+      
+      // 除了最后一个颜色外，都加换行
+      if (index < orderedColors.length - 1) {
+        content += '\n';
+      }
+    });
+
+    wx.showModal({
+      title: '',
+      content: content,
+      showCancel: false,
+      confirmText: '确定',
+      confirmColor: '#007aff'
+    });
   },
 
   // 转换为状态字符串（供Kociemba算法使用）
