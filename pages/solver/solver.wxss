@@ -7,37 +7,53 @@
   min-height: 100vh;
 }
 
-/* 广告横幅 */
+/* 顶部广告横幅 */
 .ad-banner {
-  height: 120rpx;
-  background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+  background: linear-gradient(135deg, #4A90E2, #357BD8);
+  color: white;
+  padding: 35rpx 30rpx;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  margin-bottom: 20rpx;
+  border-radius: 0;
+  margin-bottom: 30rpx;
 }
 
-.ad-placeholder {
-  color: #999;
+.ad-content {
+  flex: 1;
+}
+
+.ad-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.ad-subtitle {
   font-size: 24rpx;
+  opacity: 0.9;
+  display: block;
+  margin-bottom: 15rpx;
 }
 
-/* 分享按钮 */
-.share-wrapper {
+/* 分享按钮容器样式 */
+.share-container {
   display: flex;
   justify-content: flex-end;
-  padding: 0 30rpx;
-  margin-bottom: 20rpx;
+  padding: 0 30rpx 30rpx;
 }
 
 .share-btn {
-  display: flex;
-  align-items: center;
   background-color: transparent;
-  border: none;
-  font-size: 24rpx;
-  color: #666;
   padding: 0;
+  margin: 0;
+  border: none;
+  line-height: normal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .share-btn::after {
@@ -45,9 +61,14 @@
 }
 
 .share-icon {
-  width: 32rpx;
-  height: 32rpx;
-  margin-right: 8rpx;
+  width: 72rpx;
+  height: 72rpx;
+  margin-bottom: 8rpx;
+}
+
+.share-text {
+  font-size: 24rpx;
+  color: #666;
 }
 
 /* 魔方展示区域 - 更大更突出 */
@@ -56,18 +77,19 @@
   height: 600rpx;
   background-color: #f0f0f0;
   margin-bottom: 40rpx;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+  /* 移除overflow: hidden，让魔方完整显示 */
 }
 
-.solver-canvas {
-  width: 90%;
-  height: 90%;
-  max-width: 500rpx;
-  max-height: 500rpx;
+/* 魔方组件样式 - 让组件使用默认尺寸 */
+hybrid-cube {
+  display: block;
+  transition: all 0.3s ease-in-out;
+  /* 移除固定宽高，让组件使用默认的600rpx容器 */
 }
+
 
 .solving-loading {
   position: absolute;
@@ -82,41 +104,66 @@
   background-color: rgba(240, 240, 240, 0.9);
   font-size: 28rpx;
   color: #666;
+  z-index: 10; /* 确保加载动画在魔方上方 */
 }
 
 .solving-loading text {
   margin-top: 20rpx;
 }
 
-/* 步数显示 */
-.step-display {
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 6rpx solid #f3f3f3;
+  border-top: 6rpx solid #4A90E2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 步数显示区域 */
+.step-info {
   text-align: center;
   margin-bottom: 40rpx;
+  padding: 20rpx;
 }
 
 .step-text {
   font-size: 36rpx;
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
+  background: linear-gradient(135deg, #4A90E2, #357BD8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 底部控制区 */
+.bottom-controls {
+  padding: 0 30rpx 40rpx;
 }
 
 /* 主要控制按钮 */
 .main-controls {
   display: flex;
   justify-content: center;
-  gap: 40rpx;
-  margin-bottom: 50rpx;
-  padding: 0 50rpx;
+  gap: 30rpx;
+  margin-bottom: 30rpx;
 }
 
 .control-btn {
   height: 80rpx;
   line-height: 80rpx;
-  padding: 0 30rpx;
+  padding: 0 25rpx;
   font-size: 28rpx;
   border-radius: 12rpx;
   font-weight: 500;
   border: none;
+  min-width: 100rpx;
 }
 
 .control-btn::after {
@@ -126,13 +173,20 @@
 .back-btn {
   background: linear-gradient(135deg, #4CAF50, #45a049);
   color: white;
-  min-width: 120rpx;
 }
 
 .nav-btn {
   background: linear-gradient(135deg, #4CAF50, #45a049);
   color: white;
-  min-width: 100rpx;
+}
+
+.auto-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.auto-btn.auto-playing {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
 }
 
 .btn-disabled {
@@ -140,53 +194,44 @@
   color: #666666 !important;
 }
 
-/* 速度控制和自动播放 */
-.speed-auto-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 50rpx;
-  margin-bottom: 40rpx;
-}
-
-.speed-control {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  margin-right: 40rpx;
+/* 播放速度调节 */
+.speed-control-section {
+  text-align: center;
+  background-color: white;
+  border-radius: 12rpx;
+  padding: 25rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
 }
 
 .speed-label {
   font-size: 28rpx;
   color: #333;
-  margin-right: 20rpx;
-  min-width: 80rpx;
-}
-
-.speed-slider {
-  flex: 1;
-  max-width: 200rpx;
-}
-
-.auto-btn {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: white;
-  height: 80rpx;
-  line-height: 80rpx;
-  padding: 0 30rpx;
-  font-size: 28rpx;
-  border-radius: 12rpx;
   font-weight: 500;
-  border: none;
-  min-width: 120rpx;
+  display: block;
+  margin-bottom: 20rpx;
 }
 
-.auto-btn::after {
-  border: none;
+.speed-options {
+  display: flex;
+  justify-content: space-between;
+  gap: 10rpx;
 }
 
-.auto-btn.auto-playing {
-  background: linear-gradient(135deg, #FF9800, #F57C00);
+.speed-option {
+  flex: 1;
+  font-size: 24rpx;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 15rpx 10rpx;
+  border-radius: 8rpx;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.speed-option.active {
+  background: linear-gradient(135deg, #4A90E2, #357BD8);
+  color: white;
+  font-weight: 500;
 }
 
 

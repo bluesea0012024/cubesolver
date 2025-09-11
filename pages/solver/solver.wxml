@@ -1,28 +1,24 @@
 <!--solver.wxml-->
 <view class="container">
-  <!-- 顶部广告位 -->
+  <!-- 顶部广告横幅 -->
   <view class="ad-banner">
-    <!-- 广告位预留 -->
-    <text class="ad-placeholder">广告位</text>
+    <view class="ad-content">
+      <text class="ad-title">魔方还原助手</text>
+      <text class="ad-subtitle">轻松几步，还原魔方</text>
+    </view>
   </view>
 
-  <!-- 分享按钮 -->
-  <view class="share-wrapper">
+  <!-- 分享按钮容器 -->
+  <view class="share-container">
     <button class="share-btn" bindtap="shareSolution">
-      <image class="share-icon" src="/ui/share-icon.png" mode="aspectFit"></image>
-      <text>分享给朋友</text>
+      <image src="/ui/share-icon.svg" class="share-icon"></image>
+      <text class="share-text">分享给朋友</text>
     </button>
   </view>
 
   <!-- 魔方3D模型展示 -->
   <view class="cube-display">
-    <canvas 
-      canvas-id="solverCanvas" 
-      class="solver-canvas"
-      bindtouchstart="onTouchStart"
-      bindtouchmove="onTouchMove"
-      bindtouchend="onTouchEnd"
-    ></canvas>
+    <hybrid-cube id="hybrid-cube" cubeState="{{cubeStateForDisplay}}" bind:cubeClick="onCubeClick" />
     
     <!-- 加载动画 -->
     <view class="solving-loading" wx:if="{{isSolving}}">
@@ -31,59 +27,57 @@
     </view>
   </view>
 
-  <!-- 步数显示 -->
-  <view class="step-display">
+  <!-- 步数显示区域 -->
+  <view class="step-info">
     <text class="step-text">步数：{{currentStep}}/{{totalSteps}}</text>
   </view>
 
-  <!-- 主要控制按钮 -->
-  <view class="main-controls">
-    <button 
-      class="control-btn back-btn" 
-      bindtap="goBack"
-    >
-      返回
-    </button>
-    
-    <button 
-      class="control-btn nav-btn {{currentStep <= 0 ? 'btn-disabled' : ''}}" 
-      bindtap="previousStep"
-      disabled="{{currentStep <= 0}}"
-    >
-      &lt;&lt;
-    </button>
-    
-    <button 
-      class="control-btn nav-btn {{currentStep >= totalSteps ? 'btn-disabled' : ''}}" 
-      bindtap="nextStep"
-      disabled="{{currentStep >= totalSteps}}"
-    >
-      &gt;&gt;
-    </button>
-  </view>
-
-  <!-- 速度控制和自动播放 -->
-  <view class="speed-auto-controls">
-    <view class="speed-control">
-      <text class="speed-label">{{speedText}}</text>
-      <slider 
-        class="speed-slider"
-        min="1" 
-        max="3" 
-        step="1" 
-        value="{{playSpeed}}"
-        bindchange="onSpeedChange"
-        activeColor="#4CAF50"
-        backgroundColor="#e0e0e0"
-      />
+  <!-- 底部控制区 -->
+  <view class="bottom-controls">
+    <!-- 主要控制按钮 -->
+    <view class="main-controls">
+      <button 
+        class="control-btn back-btn" 
+        bindtap="goBack"
+      >
+        返回
+      </button>
+      
+      <button 
+        class="control-btn nav-btn {{currentStep <= 0 ? 'btn-disabled' : ''}}" 
+        bindtap="previousStep"
+        disabled="{{currentStep <= 0 || isAnimating}}"
+      >
+        &lt;&lt;
+      </button>
+      
+      <button 
+        class="control-btn nav-btn {{currentStep >= totalSteps ? 'btn-disabled' : ''}}" 
+        bindtap="nextStep"
+        disabled="{{currentStep >= totalSteps || isAnimating}}"
+      >
+        &gt;&gt;
+      </button>
+      
+      <button 
+        class="control-btn auto-btn {{isAutoPlaying ? 'auto-playing' : ''}}" 
+        bindtap="toggleAutoPlay"
+      >
+        自动
+      </button>
     </view>
-    
-    <button 
-      class="auto-btn {{isAutoPlaying ? 'auto-playing' : ''}}" 
-      bindtap="toggleAutoPlay"
-    >
-      自动
-    </button>
+
+    <!-- 播放速度调节滑块 -->
+    <view class="speed-control-section">
+      <text class="speed-label">播放速度：</text>
+      <view class="speed-options">
+        <text class="speed-option {{playSpeed === 1 ? 'active' : ''}}" bindtap="setSpeed" data-speed="1">较慢</text>
+        <text class="speed-option {{playSpeed === 2 ? 'active' : ''}}" bindtap="setSpeed" data-speed="2">慢速</text>
+        <text class="speed-option {{playSpeed === 3 ? 'active' : ''}}" bindtap="setSpeed" data-speed="3">中速</text>
+        <text class="speed-option {{playSpeed === 4 ? 'active' : ''}}" bindtap="setSpeed" data-speed="4">较快</text>
+        <text class="speed-option {{playSpeed === 5 ? 'active' : ''}}" bindtap="setSpeed" data-speed="5">快速</text>
+      </view>
+    </view>
   </view>
 
   <!-- 完成提示 -->

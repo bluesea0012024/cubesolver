@@ -436,6 +436,37 @@ Page({
     this.initCubeState();
   },
 
+  onShow() {
+    // 检查是否从solver页面返回，如果有全局状态则同步
+    const app = getApp();
+    if (app.globalData?.currentCubeState) {
+      const cubeModel = app.globalData.currentCubeState;
+      if (cubeModel.getState) {
+        // 如果是CubeModel实例，获取状态并转换格式
+        const modelState = cubeModel.getState();
+        const convertedState = {};
+        
+        // 转换颜色格式：从color名转换为face名
+        const colorToFace = {
+          'white': 'U', 'yellow': 'D', 'green': 'F', 
+          'blue': 'B', 'orange': 'L', 'red': 'R', 'empty': 'empty'
+        };
+        
+        for (let face in modelState) {
+          convertedState[face] = modelState[face].map(color => 
+            colorToFace[color] || color
+          );
+        }
+        
+        this.setData({
+          cubeState: convertedState,
+          completedFaces: this.countCompletedFaces(convertedState),
+          canSolve: this.checkCanSolve(convertedState)
+        });
+      }
+    }
+  },
+
   initCubeState() {
     // U-上(白), D-下(黄), F-前(绿), B-后(蓝), L-左(橙), R-右(红)
     const initialCubeState = {
@@ -573,14 +604,26 @@ Page({
     // 保存魔方状态到全局数据
     const app = getApp();
     app.globalData = app.globalData || {};
-    app.globalData.currentCubeState = {
-      getState: () => this.data.cubeState,
-      getStateString: () => this.convertToStateString(this.data.cubeState),
-      copy: () => ({
-        getState: () => ({ ...this.data.cubeState }),
-        getStateString: () => this.convertToStateString(this.data.cubeState)
-      })
+    
+    // 创建CubeModel实例并从当前状态复制数据
+    const cubeModel = new CubeModel();
+    const currentState = this.data.cubeState;
+    
+    // 复制当前魔方状态到CubeModel，转换颜色格式
+    const faceToColor = {
+      'U': 'white', 'D': 'yellow', 'F': 'green', 
+      'B': 'blue', 'L': 'orange', 'R': 'red', 'empty': 'empty'
     };
+    
+    for (let face in currentState) {
+      if (currentState[face] && Array.isArray(currentState[face])) {
+        cubeModel.faces[face] = currentState[face].map(faceKey => 
+          faceToColor[faceKey] || faceKey
+        );
+      }
+    }
+    
+    app.globalData.currentCubeState = cubeModel;
 
     // 跳转到求解页面
     wx.navigateTo({
@@ -658,6 +701,35 @@ Page({
       confirmText: '确定',
       confirmColor: '#007aff'
     });
+  },
+
+  // 计算已完成的面数
+  countCompletedFaces(cubeState) {
+    let completedFaces = 0;
+    for (let face in cubeState) {
+      let faceComplete = true;
+      for (let i = 0; i < 9; i++) {
+        if (cubeState[face][i] === 'empty') {
+          faceComplete = false;
+          break;
+        }
+      }
+      if (faceComplete) completedFaces++;
+    }
+    return completedFaces;
+  },
+
+  // 检查是否可以开始求解
+  checkCanSolve(cubeState) {
+    // 检查是否所有位置都已填入颜色
+    for (let face in cubeState) {
+      for (let i = 0; i < 9; i++) {
+        if (cubeState[face][i] === 'empty') {
+          return false;
+        }
+      }
+    }
+    return true;
   },
 
   // 转换为状态字符串（供Kociemba算法使用）

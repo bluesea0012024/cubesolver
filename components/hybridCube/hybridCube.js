@@ -54,7 +54,14 @@ Component({
       'green': '#4caf50',
       'blue': '#2196f3',
       'orange': '#ff9800',
-      'red': '#f44336'
+      'red': '#f44336',
+      // 面标识符映射
+      'U': '#ffffff',    // 上面 - 白色
+      'D': '#ffeb3b',    // 下面 - 黄色
+      'F': '#4caf50',    // 前面 - 绿色
+      'B': '#2196f3',    // 后面 - 蓝色
+      'L': '#ff9800',    // 左面 - 橙色
+      'R': '#f44336'     // 右面 - 红色
     },
     
     // 性能优化相关
@@ -89,8 +96,11 @@ Component({
     
     'cubeState': function(newCubeState) {
       if (newCubeState) {
-        // 更新顶点颜色
-        this.updateVertexColors();
+        console.log('HybridCube收到新状态数据:', newCubeState)
+        
+        // HybridCube使用CSS类名渲染，数据更新会自动触发重新渲染
+        // 只需要更新顶点颜色
+        this.updateVertexColors()
       }
     }
   },
@@ -174,7 +184,12 @@ Component({
 
     // 渲染所有面 - 优化版本
     renderAllFaces() {
-      if (!this.data.cubeState) return
+      if (!this.data.cubeState) {
+        console.warn('renderAllFaces: 没有cubeState数据')
+        return
+      }
+      
+      console.log('开始渲染所有面, cubeState:', this.data.cubeState)
       
       const faceMap = {
         'front': 'F',
@@ -187,8 +202,13 @@ Component({
       
       Object.keys(faceMap).forEach(faceName => {
         const faceKey = faceMap[faceName]
-        if (this.data.cubeState[faceKey]) {
-          this.renderFace(faceName, this.data.cubeState[faceKey])
+        const faceData = this.data.cubeState[faceKey]
+        console.log(`准备渲染面 ${faceName} (${faceKey}):`, faceData)
+        
+        if (faceData && Array.isArray(faceData) && faceData.length === 9) {
+          this.renderFace(faceName, faceData)
+        } else {
+          console.warn(`面 ${faceName} 数据无效:`, faceData)
         }
       })
     },
@@ -197,11 +217,12 @@ Component({
     renderFace(faceName, faceData) {
       const ctx = this.data.canvasContexts[faceName]
       if (!ctx || !faceData) {
-        console.warn(`无法渲染面 ${faceName}:`, { ctx: !!ctx, faceData: !!faceData })
+        console.warn(`无法渲染面 ${faceName}:`, { ctx: !!ctx, faceData: !!faceData, canvasContexts: Object.keys(this.data.canvasContexts) })
         return
       }
 
       console.log(`渲染面 ${faceName}:`, faceData)
+      console.log(`Canvas上下文状态:`, typeof ctx, ctx.constructor?.name)
       
       try {
         // 清空Canvas
@@ -224,8 +245,12 @@ Component({
             const y = row * blockSize + gap
             const size = blockSize - gap * 2
             
+            // 调试颜色映射
+            const colorValue = this.data.colors[color] || this.data.colors['empty']
+            console.log(`面 ${faceName} 位置 ${index}: 颜色=${color}, 颜色值=${colorValue}`)
+            
             // 绘制格子背景
-            ctx.fillStyle = this.data.colors[color] || this.data.colors['empty']
+            ctx.fillStyle = colorValue
             ctx.fillRect(x, y, size, size)
             
             // 绘制边框
@@ -408,6 +433,40 @@ Component({
       this.updateVertexPositions(this.data.rotateX, this.data.rotateY)
     },
 
+    // 动画执行方法（给solver页面调用）
+    animateMove(move, duration = 400) {
+      return new Promise((resolve) => {
+        console.log(`执行动画: ${move}, 时长: ${duration}ms`)
+        
+        // 简化动画：通过快速轻微摆动来模拟转动效果
+        const originalRotateX = this.data.rotateX
+        const originalRotateY = this.data.rotateY
+        
+        // 第一阶段：轻微摆动
+        const swingDuration = duration * 0.3
+        const swingAngle = 10
+        
+        this.setData({
+          rotateX: originalRotateX + swingAngle,
+          rotateY: originalRotateY + swingAngle,
+          transform: `rotateX(${originalRotateX + swingAngle}deg) rotateY(${originalRotateY + swingAngle}deg)`
+        })
+        
+        setTimeout(() => {
+          // 第二阶段：回归原位
+          this.setData({
+            rotateX: originalRotateX,
+            rotateY: originalRotateY,
+            transform: `rotateX(${originalRotateX}deg) rotateY(${originalRotateY}deg)`
+          })
+          
+          setTimeout(() => {
+            resolve()
+          }, duration * 0.7)
+          
+        }, swingDuration)
+      })
+    }
 
   }
 });
